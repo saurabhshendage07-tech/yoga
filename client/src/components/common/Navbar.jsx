@@ -231,9 +231,9 @@ export default function Navbar({ onOpenEnroll }) {
                 <Link
                   to="/login"
                   onClick={() => setIsOpen(false)}
-                  className="w-full text-center py-2.5 text-sm font-medium text-[#2D4A3E] bg-[#EFE9DF] rounded-xl"
+                  className="w-full text-center py-2.5 text-sm font-medium text-[#2D4A3E] bg-[#EFE9DF] rounded-xl active:scale-[0.98] transition"
                 >
-                  Login / Register
+                  Student Login / Register
                 </Link>
                 <button
                   onClick={() => {
@@ -241,10 +241,18 @@ export default function Navbar({ onOpenEnroll }) {
                     if (onOpenEnroll) onOpenEnroll();
                     else navigate('/courses');
                   }}
-                  className="w-full py-2.5 text-sm font-medium text-white bg-[#2D4A3E] rounded-xl shadow"
+                  className="w-full py-2.5 text-sm font-medium text-white bg-[#2D4A3E] rounded-xl shadow active:scale-[0.98] transition cursor-pointer"
                 >
                   Join / Enroll Now
                 </button>
+                <Link
+                  to="/login"
+                  onClick={() => setIsOpen(false)}
+                  className="text-center text-xs text-[#6A7E72] hover:text-[#2D4A3E] pt-1 flex items-center justify-center gap-1.5 transition"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#C59B63]" />
+                  <span>Studio Admin Portal</span>
+                </Link>
               </>
             )}
           </div>

@@ -149,31 +149,39 @@ export default function AdminLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="bg-white/90 backdrop-blur-md border-b border-[#E1DBD1] py-3.5 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
-          <div className="flex items-center gap-3">
+        <header className="bg-white/95 backdrop-blur-md border-b border-[#E1DBD1] py-2.5 sm:py-3.5 px-3 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-lg text-[#2D4A3E] hover:bg-black/5"
+              className="lg:hidden p-2 rounded-xl bg-[#FAF8F5] border border-[#DDD5C7] text-[#2D4A3E] hover:bg-[#EFE9DF] active:scale-95 transition cursor-pointer"
+              aria-label="Open Admin Navigation"
             >
               <Menu className="w-5 h-5" />
             </button>
+            <div className="flex items-center gap-2 lg:hidden">
+              <div className="w-7 h-7 rounded-full bg-[#EAE3D6] p-1 flex items-center justify-center">
+                <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-heading font-bold text-xs text-[#24362C]">PRANAVEDA</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[#2D4A3E] text-[#E2B887]">ADMIN</span>
+            </div>
             <div className="hidden sm:block text-xs font-medium text-[#55695C]">
               PranaVeda Yoga & Wellness Sanctuary • <span className="text-[#2D4A3E] font-semibold">Management Console</span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Link
               to="/"
-              target="_blank"
-              className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EFE9DF] text-[#2D4A3E] hover:bg-[#E5DDCF] text-xs font-semibold transition"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-[#EFE9DF] text-[#2D4A3E] hover:bg-[#E5DDCF] text-xs font-semibold transition active:scale-95"
             >
-              <span>Live Website</span>
+              <span className="hidden xs:inline">Live Website</span>
+              <span className="xs:hidden">Site</span>
               <ExternalLink className="w-3 h-3" />
             </Link>
 
-            <div className="flex items-center gap-2.5 pl-3 border-l border-[#E1DBD1]">
-              <div className="w-8 h-8 rounded-full bg-[#2D4A3E] text-white flex items-center justify-center font-bold text-xs">
+            <div className="flex items-center gap-2 pl-2 sm:pl-3 border-l border-[#E1DBD1]">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#2D4A3E] text-white flex items-center justify-center font-bold text-xs">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'A'}
               </div>
               <div className="hidden sm:block text-left text-xs">
@@ -187,16 +195,26 @@ export default function AdminLayout() {
         {/* Mobile Sidebar Overlay */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden flex">
-            <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-            <div className="relative w-64 bg-[#1E2E25] text-[#D8E2DA] flex flex-col z-10 shadow-2xl animate-slide-right">
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" 
+              onClick={() => setSidebarOpen(false)} 
+            />
+            <div className="relative w-72 max-w-[85vw] bg-[#1E2E25] text-[#D8E2DA] flex flex-col z-10 shadow-2xl h-full animate-slide-right">
               <div className="p-4 border-b border-[#2C4235] flex items-center justify-between">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                   <div className="w-8 h-8 rounded-full bg-[#EAE3D6] p-1 flex items-center justify-center">
                     <img src="/logo.svg" alt="Logo" className="w-full h-full object-contain" />
                   </div>
-                  <span className="font-heading font-bold text-sm text-white">PRANAVEDA</span>
+                  <div>
+                    <span className="font-heading font-bold text-sm text-white block">PRANAVEDA</span>
+                    <span className="text-[9px] text-[#A3B8A8] uppercase tracking-wider block font-medium">Admin Center</span>
+                  </div>
                 </div>
-                <button onClick={() => setSidebarOpen(false)} className="text-gray-400 hover:text-white">
+                <button 
+                  onClick={() => setSidebarOpen(false)} 
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition"
+                  aria-label="Close menu"
+                >
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -246,7 +264,7 @@ export default function AdminLayout() {
         )}
 
         {/* Dynamic Nested Content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto min-w-0">
           <Outlet />
         </main>
       </div>

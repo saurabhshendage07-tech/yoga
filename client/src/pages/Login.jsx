@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export default function Login() {
-  const [isRegister, setIsRegister] = useState(false);
+  const [portalMode, setPortalMode] = useState('student'); // 'student' | 'admin'
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -39,7 +39,7 @@ export default function Login() {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  const { login, register, resetPassword } = useAuth();
+  const { login, loginAdmin, register, resetPassword } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -94,8 +94,24 @@ export default function Login() {
       return;
     }
 
+    if (!formData.password) {
+      triggerError('Please enter your password.');
+      showToast('Please enter your password.', 'error');
+      return;
+    }
+
     setLoading(true);
     try {
+      if (portalMode === 'admin') {
+        const adminUser = await loginAdmin(formData.email, formData.password);
+        setLoginSuccess(true);
+        showToast('Administrator authorized successfully! Redirecting...', 'success');
+        setTimeout(() => {
+          navigate('/admin');
+        }, 600);
+        return;
+      }
+
       if (isRegister) {
         if (!formData.name) {
           triggerError('Please enter your full name.');
@@ -270,9 +286,9 @@ export default function Login() {
             transformStyle: 'preserve-3d'
           }}
           className={`
-            w-full max-w-[430px] mx-auto
-            rounded-3xl p-6 sm:p-7
-            bg-white/90 backdrop-blur-xl
+            w-full max-w-[440px] mx-auto
+            rounded-3xl p-4 sm:p-7
+            bg-white/95 backdrop-blur-xl
             border border-[#EAE3D6]/90
             shadow-[0_20px_50px_-12px_rgba(30,48,38,0.12),0_4px_16px_rgba(0,0,0,0.03)]
             relative z-10
@@ -288,35 +304,81 @@ export default function Login() {
           {/* ========================================================================= */}
           {/* 3. CARD HEADER WITH ANIMATED PRANAVEDA LOGO                              */}
           {/* ========================================================================= */}
-          <div className="text-center mb-5">
+          <div className="text-center mb-4">
             {/* Animated Logo Container with Soft Aura */}
-            <div className="relative inline-block mb-2.5">
+            <div className="relative inline-block mb-2">
               <div className="absolute inset-0 rounded-2xl bg-[#E2B887]/30 blur-md animate-pulse pointer-events-none" />
-              <div className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FAF8F5] to-[#EFE9DF] p-2 mx-auto flex items-center justify-center shadow-sm border border-[#DDD5C7] transition-transform duration-300 hover:scale-105">
+              <div className="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-[#FAF8F5] to-[#EFE9DF] p-2 mx-auto flex items-center justify-center shadow-xs border border-[#DDD5C7] transition-transform duration-300 hover:scale-105">
                 <img src="/logo.svg" alt="PranaVeda Logo" className="w-full h-full object-contain" />
               </div>
             </div>
 
             <h1 className="text-xl sm:text-2xl font-serif font-bold text-[#1E2E25] tracking-tight">
-              {isRegister ? 'Join PranaVeda' : 'Welcome Back'}
+              {portalMode === 'admin'
+                ? 'Studio Admin Portal'
+                : isRegister
+                ? 'Join PranaVeda'
+                : 'Welcome Back'}
             </h1>
-            <p className="text-[11px] sm:text-xs text-[#6A7E72] mt-1 font-light max-w-xs mx-auto">
-              {isRegister
+            <p className="text-[11px] sm:text-xs text-[#6A7E72] mt-0.5 font-light max-w-xs mx-auto">
+              {portalMode === 'admin'
+                ? 'Enter your studio credentials to access the management dashboard'
+                : isRegister
                 ? 'Begin your transformative Himalayan wellness journey'
                 : 'Continue your mindful yoga & wellness journey'}
             </p>
           </div>
 
           {/* ========================================================================= */}
+          {/* DUAL PORTAL SWITCHER: STUDENT vs ADMIN                                    */}
+          {/* ========================================================================= */}
+          <div className="grid grid-cols-2 p-1 bg-[#F2ECE1] rounded-2xl mb-4 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => {
+                setPortalMode('student');
+                setErrorMessage('');
+              }}
+              className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
+                portalMode === 'student'
+                  ? 'bg-white text-[#2D4A3E] shadow-xs'
+                  : 'text-[#6A7E72] hover:text-[#2D4A3E]'
+              }`}
+            >
+              <span>🧘</span>
+              <span>Student Portal</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setPortalMode('admin');
+                setIsRegister(false);
+                setErrorMessage('');
+                if (!formData.email) {
+                  setFormData(prev => ({ ...prev, email: 'admin@gmail.com' }));
+                }
+              }}
+              className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 ${
+                portalMode === 'admin'
+                  ? 'bg-[#2D4A3E] text-white shadow-xs'
+                  : 'text-[#6A7E72] hover:text-[#2D4A3E]'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-[#E2B887]" />
+              <span>Admin Access</span>
+            </button>
+          </div>
+
+          {/* ========================================================================= */}
           {/* 4. COMPACT 1-CLICK QUICK DEMO ACCESS                                     */}
           {/* ========================================================================= */}
-          <div className="mb-4.5 p-2.5 sm:p-3 rounded-2xl bg-[#FAF8F5]/80 border border-[#EAE3D6] space-y-2">
+          <div className="mb-4 p-2.5 rounded-2xl bg-[#FAF8F5]/80 border border-[#EAE3D6] space-y-1.5">
             <div className="flex items-center justify-between px-1">
               <span className="text-[10px] font-bold tracking-wider uppercase text-[#7A8C80] flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-[#C59B63]" />
-                Quick Demo Access
+                Quick 1-Click Access
               </span>
-              <span className="text-[9px] text-[#A8B8A5] font-medium">1-Click Login</span>
+              <span className="text-[9px] text-[#A8B8A5] font-medium">Instant Test</span>
             </div>
             
             <div className="grid grid-cols-2 gap-2">
@@ -324,20 +386,20 @@ export default function Login() {
                 type="button"
                 onClick={loginDemoStudent}
                 disabled={loading || loginSuccess}
-                className="group relative px-3 py-1.5 sm:py-2 rounded-xl bg-white border border-[#DDD5C7] text-[11px] font-semibold text-[#2D4A3E] hover:bg-[#EFE9DF] hover:border-[#C59B63]/60 transition-all duration-200 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="group relative px-2.5 py-1.5 rounded-xl bg-white border border-[#DDD5C7] text-[11px] font-semibold text-[#2D4A3E] hover:bg-[#EFE9DF] hover:border-[#C59B63]/60 transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
               >
-                <span className="text-xs group-hover:scale-110 transition-transform">🧘</span>
-                <span>Student</span>
+                <span className="text-xs">🧘</span>
+                <span>Student Demo</span>
               </button>
               
               <button
                 type="button"
                 onClick={loginDemoAdmin}
                 disabled={loading || loginSuccess}
-                className="group relative px-3 py-1.5 sm:py-2 rounded-xl bg-[#2D4A3E] border border-[#2D4A3E] text-white text-[11px] font-semibold hover:bg-[#1E2E25] hover:border-[#C59B63]/40 transition-all duration-200 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="group relative px-2.5 py-1.5 rounded-xl bg-[#2D4A3E] border border-[#2D4A3E] text-white text-[11px] font-semibold hover:bg-[#1E2E25] hover:border-[#C59B63]/40 transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 active:scale-95"
               >
-                <ShieldCheck className="w-3.5 h-3.5 text-[#E2B887] group-hover:scale-110 transition-transform" />
-                <span>Admin</span>
+                <ShieldCheck className="w-3.5 h-3.5 text-[#E2B887]" />
+                <span>Admin Demo</span>
               </button>
             </div>
           </div>
@@ -346,7 +408,7 @@ export default function Login() {
           {/* 5. INLINE ERROR BANNER                                                   */}
           {/* ========================================================================= */}
           {errorMessage && (
-            <div className="mb-4 p-2.5 rounded-xl bg-[#FDF2F2] border border-[#F8D7DA] flex items-start gap-2 text-xs text-[#9B2C2C] animate-fade-in">
+            <div className="mb-3.5 p-2.5 rounded-xl bg-[#FDF2F2] border border-[#F8D7DA] flex items-start gap-2 text-xs text-[#9B2C2C] animate-fade-in">
               <AlertCircle className="w-4 h-4 text-[#E53E3E] shrink-0 mt-0.5" />
               <span className="leading-tight">{errorMessage}</span>
             </div>
@@ -357,7 +419,7 @@ export default function Login() {
           {/* ========================================================================= */}
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-3.5 text-xs">
             {/* Full Name (Register Only) */}
-            {isRegister && (
+            {portalMode === 'student' && isRegister && (
               <div>
                 <label className="block text-[11px] font-semibold text-[#4A5D50] mb-1">
                   Full Name <span className="text-[#C59B63]">*</span>
@@ -371,7 +433,7 @@ export default function Login() {
                     value={formData.name}
                     onChange={handleInputChange}
                     required={isRegister}
-                    className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
               </div>
@@ -380,24 +442,24 @@ export default function Login() {
             {/* Email Address */}
             <div>
               <label className="block text-[11px] font-semibold text-[#4A5D50] mb-1">
-                Email Address <span className="text-[#C59B63]">*</span>
+                {portalMode === 'admin' ? 'Administrator Email' : 'Email Address'} <span className="text-[#C59B63]">*</span>
               </label>
               <div className="relative group">
                 <Mail className="w-4 h-4 text-[#869A8C] group-focus-within:text-[#2D4A3E] absolute left-3 top-1/2 -translate-y-1/2 transition-colors pointer-events-none" />
                 <input
                   type="email"
                   name="email"
-                  placeholder="name@example.com"
+                  placeholder={portalMode === 'admin' ? 'admin@gmail.com' : 'name@example.com'}
                   value={formData.email}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
                 />
               </div>
             </div>
 
             {/* Mobile (Register Only) */}
-            {isRegister && (
+            {portalMode === 'student' && isRegister && (
               <div>
                 <label className="block text-[11px] font-semibold text-[#4A5D50] mb-1">
                   Mobile Number (WhatsApp)
@@ -410,7 +472,7 @@ export default function Login() {
                     placeholder="e.g. 9876543210"
                     value={formData.mobile}
                     onChange={handleInputChange}
-                    className="w-full pl-9 pr-3 py-2 sm:py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
                   />
                 </div>
               </div>
@@ -422,7 +484,7 @@ export default function Login() {
                 <label className="text-[11px] font-semibold text-[#4A5D50]">
                   Password <span className="text-[#C59B63]">*</span>
                 </label>
-                {!isRegister && (
+                {portalMode === 'student' && !isRegister && (
                   <button
                     type="button"
                     onClick={() => setForgotModal(true)}
@@ -441,12 +503,12 @@ export default function Login() {
                   value={formData.password}
                   onChange={handleInputChange}
                   required
-                  className="w-full pl-9 pr-9 py-2 sm:py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
+                  className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-[#D5CABE] bg-white/95 text-[#24362C] placeholder-[#A0AEC0] text-xs focus:ring-2 focus:ring-[#55755E]/30 focus:border-[#55755E] focus:outline-none transition-all shadow-2xs"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#869A8C] hover:text-[#2D4A3E] p-1 cursor-pointer transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#869A8C] hover:text-[#2D4A3E] p-1.5 cursor-pointer transition-colors"
                   title={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
@@ -464,7 +526,7 @@ export default function Login() {
                 border border-[#3D6354]
                 shadow-[0_8px_20px_-4px_rgba(45,74,62,0.35)]
                 hover:bg-[#22392F] hover:shadow-[0_12px_24px_-4px_rgba(45,74,62,0.45)]
-                hover:-translate-y-0.5 active:translate-y-0
+                hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]
                 transition-all duration-200
                 flex items-center justify-center gap-2
                 disabled:opacity-70 cursor-pointer mt-2
@@ -484,6 +546,12 @@ export default function Login() {
                   </div>
                   <span>Signing In...</span>
                 </div>
+              ) : portalMode === 'admin' ? (
+                <>
+                  <ShieldCheck className="w-4 h-4 text-[#E2B887]" />
+                  <span>Sign In as Administrator</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#E2B887] group-hover:translate-x-1 transition-transform" />
+                </>
               ) : (
                 <>
                   <span>{isRegister ? 'Complete Registration' : 'Sign In'}</span>
@@ -494,24 +562,26 @@ export default function Login() {
           </form>
 
           {/* ========================================================================= */}
-          {/* 7. TOGGLE LOGIN / REGISTER                                               */}
+          {/* 7. TOGGLE LOGIN / REGISTER (Student Only)                                */}
           {/* ========================================================================= */}
-          <div className="mt-4 pt-3 border-t border-[#F0EAE1] text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setErrorMessage('');
-                setIsRegister(!isRegister);
-              }}
-              className="text-xs text-[#55695C] hover:text-[#1E2E25] font-medium transition-colors cursor-pointer"
-            >
-              {isRegister ? (
-                <span>Already have an account? <strong className="text-[#2D4A3E] underline decoration-[#C59B63]/50">Sign In here</strong></span>
-              ) : (
-                <span>Don't have an account yet? <strong className="text-[#2D4A3E] underline decoration-[#C59B63]/50">Register now</strong></span>
-              )}
-            </button>
-          </div>
+          {portalMode === 'student' && (
+            <div className="mt-3.5 pt-3 border-t border-[#F0EAE1] text-center">
+              <button
+                type="button"
+                onClick={() => {
+                  setErrorMessage('');
+                  setIsRegister(!isRegister);
+                }}
+                className="text-xs text-[#55695C] hover:text-[#1E2E25] font-medium transition-colors cursor-pointer"
+              >
+                {isRegister ? (
+                  <span>Already have an account? <strong className="text-[#2D4A3E] underline decoration-[#C59B63]/50">Sign In here</strong></span>
+                ) : (
+                  <span>Don't have an account yet? <strong className="text-[#2D4A3E] underline decoration-[#C59B63]/50">Register now</strong></span>
+                )}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
