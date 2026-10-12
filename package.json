@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Complete Modern Yoga Class Management Website with User Website & Admin Panel",
   "scripts": {
+    "build": "npm run build --prefix client",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "cd server && npm start",
     "dev:client": "cd client && npm run dev",
