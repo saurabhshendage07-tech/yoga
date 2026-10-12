@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Check if user is an admin by querying their admin/{uid} document
+    function isAdmin() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/admin/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/admin/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // =========================================================================
+    // 1. Admin Collection (admin/{adminId})
+    // =========================================================================
+    match /admin/{adminId} {
+      // An authenticated user can check their own admin document for authorization; Admins can read/write all
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == adminId);
+      allow write: if isAdmin();
+    }
+
+    // =========================================================================
+    // 2. Student Collection (student/{studentId})
+    // =========================================================================
+    match /student/{studentId} {
+      // Admins can read all students; users can read their own profile
+      allow read: if isAdmin() || isOwner(studentId);
+      // Authenticated users can register their profile
+      allow create: if isAuthenticated();
+      // Admins or owners can update; only admins can delete
+      allow update: if isAdmin() || isOwner(studentId);
+      allow delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 3. Courses Collection (courses/{courseId})
+    // =========================================================================
+    match /courses/{courseId} {
+      // Public visitors can view courses; only admins can create, edit, or delete courses
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 4. Payment Collection (payment/{paymentId})
+    // =========================================================================
+    match /payment/{paymentId} {
+      // Users can view their own payment receipts; Admins can view all payments
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      // Students or guests can submit payment transactions / bookings
+      allow create: if true;
+      // Only admins can verify, refund, update status, or delete payments
+      allow update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 5. Attendance Collection (attendance/{attendanceId})
+    // =========================================================================
+    match /attendance/{attendanceId} {
+      // Students can view their own attendance; Admins can view all
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.studentId == request.auth.uid);
+      // Only admins can mark, update, or delete attendance records
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 6. Enquiries Collection (enquiries/{enquiryId})
+    // =========================================================================
+    match /enquiries/{enquiryId} {
+      // Anyone can submit an enquiry / lead from the contact form
+      allow create: if true;
+      // Only admins can read, update status, or delete enquiries
+      allow read, update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 7. Notification Collection (notification/{notificationId})
+    // =========================================================================
+    match /notification/{notificationId} {
+      // Students can read notifications addressed to them; Admins can read all
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.recipientEmail == request.auth.token.email);
+      // Only admins can dispatch, update, or delete notification logs
+      allow create, update, delete: if isAdmin();
+    }
+
+    // =========================================================================
+    // 8. Setting Collection (setting/{settingId})
+    // =========================================================================
+    match /setting/{settingId} {
+      // Public visitors can read studio profile, UPI QR code, and footer settings
+      allow read: if true;
+      // Only authorized admins can update settings
+      allow write: if isAdmin();
+    }
+
+  }
+}

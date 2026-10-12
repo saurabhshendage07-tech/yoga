@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="pranaSun" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E2B887" />
+      <stop offset="100%" stop-color="#C59B63" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#55755E" />
+      <stop offset="100%" stop-color="#2D4A3E" />
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#7E9A82" stop-opacity="0.3" />
+      <stop offset="100%" stop-color="#7E9A82" stop-opacity="0" />
+    </linearGradient>
+  </defs>
+
+  <!-- Serene Subtle Halo Background -->
+  <circle cx="100" cy="100" r="90" fill="url(#glowGrad)" />
+  <circle cx="100" cy="100" r="86" stroke="#C59B63" stroke-width="1.5" stroke-dasharray="4 6" opacity="0.6" />
+
+  <!-- Radiance Golden Sun Rays / Lotus Crown -->
+  <circle cx="100" cy="76" r="32" fill="url(#pranaSun)" opacity="0.25" />
+
+  <!-- Central Meditating Yogi Silhouette & Flowing Lines -->
+  <!-- Yogi Head -->
+  <circle cx="100" cy="62" r="11" fill="url(#leafGrad)" />
+  
+  <!-- Yogi Torso & Arms in Dhyana/Anjali Mudra -->
+  <path d="M100 78 C90 78 80 88 78 102 C76 114 84 122 92 124 L100 125 L108 124 C116 122 124 114 122 102 C120 88 110 78 100 78 Z" fill="url(#leafGrad)" />
+
+  <!-- Lotus Petals Base (Sacred Flower) -->
+  <!-- Center Petal -->
+  <path d="M100 114 C94 130 96 142 100 148 C104 142 106 130 100 114 Z" fill="url(#pranaSun)" />
+  
+  <!-- Left Inner Petal -->
+  <path d="M92 120 C76 128 72 142 86 148 C94 145 97 136 92 120 Z" fill="url(#leafGrad)" />
+  
+  <!-- Right Inner Petal -->
+  <path d="M108 120 C124 128 128 142 114 148 C106 145 103 136 108 120 Z" fill="url(#leafGrad)" />
+
+  <!-- Left Outer Lotus Arc -->
+  <path d="M72 126 C54 136 56 150 78 152 C88 150 90 142 72 126 Z" fill="url(#pranaSun)" opacity="0.85" />
+
+  <!-- Right Outer Lotus Arc -->
+  <path d="M128 126 C146 136 144 150 122 152 C112 150 110 142 128 126 Z" fill="url(#pranaSun)" opacity="0.85" />
+
+  <!-- Grounding Arch -->
+  <path d="M60 156 Q100 166 140 156" stroke="#2D4A3E" stroke-width="2.5" stroke-linecap="round" />
+</svg>
